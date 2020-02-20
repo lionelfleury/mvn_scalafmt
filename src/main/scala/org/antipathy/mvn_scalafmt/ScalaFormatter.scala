@@ -48,6 +48,7 @@ object ScalaFormatter {
     * @param onlyChangedFiles Should only changed files be formatted
     * @param branch The branch to compare against for changed files
     * @param workingDirectory The project working directory
+    * @param mavenRepositories A list of alternative maven repositories from which to download
     * @return a new ScalaFormatter instance
     */
   def apply(
@@ -57,7 +58,8 @@ object ScalaFormatter {
     testOnly: Boolean,
     onlyChangedFiles: Boolean,
     branch: String,
-    workingDirectory: File
+    workingDirectory: File,
+    mavenRepositories: JList[String]
   ): ScalaFormatter = {
     val config              = LocalConfigBuilder(log).build(configLocation)
     val sourceBuilder       = new SourceFileSequenceBuilder(log)
@@ -67,6 +69,8 @@ object ScalaFormatter {
       .create(this.getClass.getClassLoader)
       .withReporter(new MavenLogReporter(log))
       .withRespectVersion(respectVersion)
+      .withMavenRepositories(mavenRepositories.asScala.toSeq: _*)
+
     val sourceFormatter = new SourceFileFormatter(config, scalafmt, log)
 
     val fileWriter = if (testOnly) {

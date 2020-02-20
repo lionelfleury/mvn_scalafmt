@@ -37,11 +37,18 @@ public class FormatMojo extends AbstractMojo {
     private String branch;
     @Parameter(readonly = true, defaultValue = "${project}")
     private MavenProject project;
+    @Parameter(property = "format.repositories")
+    private List<String> repositories;
 
+    final private String mavenCentralUrl = "https://repo.maven.apache.org/maven2/";
 
     public void execute() throws MojoExecutionException {
 
         List<File> sources = new ArrayList<>();
+
+        if (repositories.isEmpty()) {
+            repositories.add(mavenCentralUrl);
+        }
 
         if (!skipSources) {
             sources.addAll(sourceDirectories);
@@ -64,7 +71,8 @@ public class FormatMojo extends AbstractMojo {
                         validateOnly,
                         onlyChangedFiles,
                         branch,
-                        project.getBasedir()
+                        project.getBasedir(),
+                        repositories
                 ).format(sources);
                 getLog().info(result.toString());
                 if (validateOnly && result.unformattedFiles() != 0) {

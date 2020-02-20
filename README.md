@@ -32,6 +32,9 @@ Note: `version.scala.binary` refers to major releases of scala ie. 2.11, 2.12 or
         <validateOnly>false</validateOnly> <!-- check formatting without changing files -->
         <onlyChangedFiles>true</onlyChangedFiles> <!-- only format (staged) files that have been changed from the specified git branch -->
         <branch>master</branch> <!-- The git branch to check against -->
+        <repositories> <!-- (Optional) alternative repositories to download scalafmt from -->
+            <param>https://repo.maven.apache.org/maven2/</param>
+        </repositories>
     </configuration>
     <executions>
         <execution>
