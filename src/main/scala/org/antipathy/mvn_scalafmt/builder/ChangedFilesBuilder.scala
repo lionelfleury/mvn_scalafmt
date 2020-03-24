@@ -1,9 +1,11 @@
 package org.antipathy.mvn_scalafmt.builder
 
 import java.io.File
+
 import org.apache.maven.plugin.logging.Log
+
 import scala.sys.process.ProcessLogger
-import scala.util.{Try, Success, Failure}
+import scala.util.{Failure, Success, Try}
 
 /**
   * Class for building a list of files that have changed from a specified git branch
@@ -54,10 +56,13 @@ object ChangedFilesBuilder {
 
   def apply(log: Log, diff: Boolean, branch: String, workingDirectory: File): ChangedFilesBuilder = {
 
-    def command(branch: String): String = s"git diff --name-only --diff-filter=d $branch"
-    val logger: ProcessLogger           = sys.process.ProcessLogger(_ => (), err => log.error(err))
+    def command(gitRoot: String, branch: String): String =
+      s"git diff --name-only --line-prefix=$gitRoot/ --diff-filter=d $branch"
+    val logger: ProcessLogger    = sys.process.ProcessLogger(_ => (), err => log.error(err))
+    def run(cmd: String): String = sys.process.Process(cmd, workingDirectory).!!(logger).trim
     def processFunction: () => String = () => {
-      sys.process.Process(command(branch), workingDirectory).!!(logger)
+      val gitRoot = run("git rev-parse --show-toplevel")
+      run(command(gitRoot, branch))
     }
     new ChangedFilesBuilder(log, diff, branch, processFunction)
   }
